@@ -1,0 +1,12 @@
+name: clotlysisCL_2019
+title: clotlysisCL_2019
+username:
+account: drclongstaff
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 625010
+bundleId: 2244374
+url: https://drclongstaff.shinyapps.io/clotlysisCL_2019/
+when: 1563459895.17168
+asMultiple: FALSE
+asStatic: FALSE

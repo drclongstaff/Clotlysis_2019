@@ -1,0 +1,131 @@
+---
+title: "ClotlysisCL_2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+# Notes for analysing clotting and lysis curves
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+A help tab in the app summarises the main features of ClotlysisCL_2019 version 1.0 and above.  More details are presented below.
+
+# The *Plots* tab
+
+### Data Entry
+
+Time course data should be formated as a single column of time in column 1 followed by columns of absorbance data.  The program detects the length and width of the data so there is no need to specify these dimensions.  Data can be read as csv, csv2 (using , instead of . for the decimal point), txt or Excel files.  These options are specified using the radio buttons in the left hand panel.  It is also necessary to specify if the columns have header text ("Time", well names "A1", "A2"... etc), which is recommended.  
+
+Time course data, exported from a plate reader for example, should be formated as a single column of time in column 1 followed by columns of absorbance data.  The program detects the length and width of the data so there is no need to specify these dimensions.  Data can be read as csv or txt files, options which are specified using the check boxes in the left hand panel.  It is also necessary to specify if the columns have header text ("Time", well names "A1", "A2"... etc).  
+
+__Note:__ *it is important not to leave empty cells, incomplete columns or rows, or spaces in names of column headers in any data files.  Gaps and spaces are the main reasons the program fails to read data or complete an analysis.*
+
+Below is an example of a few rows of data to show how it should be formatted (and how it should appear in the *Raw data* tab).  
+
+
+```{r}
+#Data read from a text file with columns labelled Free and Bound (saved from your Excel spreadsheet for example)
+
+Res<-read.csv("ClotLysisDoses.csv", header=TRUE)
+Res1<-Res[1:8, 1:8] # The data file has 20 points but you can use fewer by reducing the 
+library(pander)
+pander(Res1) #Shows what's in the data table, top few points
+```
+
+
+### Plotting the data
+
+The graphical output in the main panel of the opening page is organised by number of rows specified, using the *How many rows* numerical input box.  Curves in the panels are modified by *% Clot formed or remaining* input and the sliders that control the *x and y axis ranges*. It should be noted that the axis options do not influence the way the data are analysed, only their graphical display.  The *% Clot formed or remaining* setting obviously affects the results of the analysis. 
+
+The supplied data give an output as shown below for 50% clot formation or remaining (also corresponding to 50% clot lysis.  Similarly, 90% clot formation would correspond to 90% clot remaining or 10% clot lysis, etc).
+
+
+### Fitted Data and fitting options
+
+The next series of options affect the precision of the results.  *Nearest point* will find the closest point in the raw data for your analysis; *Interpolate* will calculate the optimum value, which can be between the data points supplied. *Nearest point* is more robust and will work better with irregular curves.  The next pair of radio buttons allow you to use the raw data or generate additional points to a spline curve, which is useful if you have sparse data.  You can narrow the region of interest for fitted data points using the set of input boxes to specify *fitting start*, *truncate time by* and *n points* (number of points).  The newly generated data are shown in the graphical output sections on this page and the *Curve* tab, and also in the *Raw data* tab.  The default options in this section are *Interpolate* and *Raw data*, which should work well for regular curves.
+
+### Baseline options
+
+Below the axis range sliders there are input options as radio buttons that dictate how the baseline will be set.  The zero value selected will be the absorbance that equates to complete lysis.  The first option is for a global zero, which is specified by the adjacent numerical input.  In this case all curves will have the same zero absorbance value.  
+
+A second option provided is to set zero for each curves at a particular time point.  The default value for the *nth absorbance* is 1, i.e. the first absorbance reading of each curve.  Later points can be chosen by increasing the value in the *nth point* input box, for instance a point near the end where lysis is complete.  In this case individual curves may have different zero absorbance values but they will all be selected at the same time point. 
+
+The third option is to use the minimum absorbance value of each curve with the possibility to add an offset value using the slider below the radio buttons.  This is useful if there is drift and the point where 100% lysis is observed requires some manual adjustment. In this case the zero absorbance can vary for each curve and will likely come from a different time point along the curve. The way zero has been set is also recorded in the table in the *Settings* tab.
+
+Some care is needed when using these option as the chosen zero affects several of the calculated results.  The curves should be scrutinised to give authentic results for complete lysis and details of the chosen options recorded (the zeroed absorbance values can be selected for display in the **Results Table**).  The Results Table can display the absolute maximum absorbance or the absorbance above the baseline after subtraction of the chosen zero value. 
+
+### Results table
+
+The results table (also shown in the figure above), corresponds to the graphical layout and displays the results selected using the radio buttons in the left panel, summarised below.
+
+* __Column names:__ Displays the header text in the data file in the specified arrangement
+* __Chosen zero:__ Displays whatever zero value has been selected for each curve
+* __Time to % clotting:__ Time to chosen % clotting from the start
+* __Reading at % clotting:__ Absorbance reading at your chosen % clotting 
+* __Reading at peak:__ Absorbance reading at peak
+* __Reading peak-zero:__ Absorbance reading at peak with baseline subtracted
+* __Time to Peak from zero:__ Time to maximum absorbance from the start
+* __Time clotting to peak:__ Time between the selected clotting value and maximum absorbance
+* __Time to % lysis from zero:__ Time to chosen % lysis from the start
+* __Reading at % lysis:__ Absorbance reading at your chosen lysis value
+* __Time clotting to % lysis:__ Time between the chosen clotting and lysis points
+* __Time peak to % lysis:__ Time between the peak and the chosen lysis point
+* __Time to full lysis:__ Time from the start for absorbance to return to selected zero absorbance
+* __Time from clotting to lysis:__ Time between the selected clotting point and full lysis
+* __Area under the curve:__ Calculates the areas under the curves
+* __Time at max rate increase:__ First derivative, time at maximum positive change 
+* __Time at max rate decrease:__ First derivative, time at maximum negative change 
+* __Time at sign change:__ First derivative, time where curve changes direction 
+
+
+The options that are calculated from the first derivative transformations are susceptible to noise and should be used with care.  First derivate plots are not shown on this tab but are available from the second tab, *Curve*.
+
+The plots above the Results table shows graphically which selection is made.
+
+Graphs and results table can be copied to the clipboard by highlighting and right-clicking using the mouse. If you download and run the ui.R and server.R files locally in RStudio, you can search for the line of code in the Results Table section of the server.R file that contains "clipboard" and remove the # from the beginning of the line.  If this line of code is active, the contents of the table are automatically placed in the clipboard and can be pasted directly elsewhere for further analysis.
+
+```{r, out.width = "400px"}
+knitr::include_graphics("GraphTable.png")
+```
+
+
+# The *Curve* tab
+
+The curve tab allows the user to focus on a single clot lysis curve, which is selected from the box in the upper left corner.  The plot includes lines corresponding to various analysis selections available. The radio buttons under **Selected Results** specify what is shown in the table below the graph - all results, or results from clotting or lysis sections of the curve only.
+
+The first derivative button adds a first derivative plot to the graph and shows a results table including the time where there is maximum rate of absorbance increase; maximum rate of absorbance decrease; and the first time when there is a plateau (sign change between consecutive readings).  As mentioned above, these results are susceptible to noise in the absorbance data and should be checked by careful visual inspection alongside the curves.
+
+```{r, out.width = "400px"}
+knitr::include_graphics("Curve F10.png")
+```
+
+
+# The *All Results* tab
+
+Here there is a table of all the values from each well for each parameter available. It is possible to click through the data using boxes at the foot of the page and to show data from start to end or in reverse.
+
+# The *Raw Data* tab
+
+On this tab the name of the data file loaded is shown and the time and absorbance data.  If fitted curves have been generated, the new data will be displayed.
+
+# The *Explore* tab
+
+This tab provides a simple opportunity to explore your results graphically.  The default plot is a heatmap, so you can see patterns and extreme values.  If a scatter plot is selected you can select what should be plotted on the x and y axis to investigate relationships between various parameters.  Points can be identified by hovering over them with the mouse.
+
+# The *Settings* tab
+
+Here a table of settings is provided summarising the settings used in the analysis, which can be copied for future reference to aid reproducibility. 
+
+
+# The *Help* tab
+
+The *Help* tab summarises these help notes and provides citation details.
+
+R code, data and help files are available [Here](https://github.com/drclongstaff/Clotlysis_2019)
+https://github.com/drclongstaff/Clotlysis_2019
+
+More information and links may be found at 
+http://www.nibsc.org/science_and_research/biotherapeutics/haemostasis/fibrinolysis.aspx
+
